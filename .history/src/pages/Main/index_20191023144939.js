@@ -12,13 +12,12 @@ export default class Main extends Component {
         newRepo: '',
         repositories: [],
         loading: false,
-        erro: false,
     };
 
     // carregar os dados do LocalStorage
     componentDidMount() {
         const repositories = localStorage.getItem('repositories');
-        if (repositories) {
+        if(repositories) {
             this.setState({ repositories: JSON.parse(repositories)});
         }
     }
@@ -26,7 +25,7 @@ export default class Main extends Component {
     // salvar os dados do LocalStorage
     componentDidUpdate(_, prevState) {
         const { repositories } = this.state;
-        if (prevState.repositories !== repositories) {
+        if(prevState.repositories !== repositories) {
             localStorage.setItem('repositories', JSON.stringify(repositories));
         }
     }
@@ -36,15 +35,11 @@ export default class Main extends Component {
     };
 
     handleSubmit = async e => {
-        e.preventDefault();
-        this.setState({ loading: true, erro: false });
         try {
+            e.preventDefault();
+            this.setState({ loading: true });
+
             const { newRepo, repositories } = this.state;
-
-            if (newRepo === '') throw 'Você precisa indicar um repositório';
-            const hasRepo = repositories.find(r => r.name === newRepo);
-            if (hasRepo) throw 'Repositório duplicado';
-
             const response = await api.get(`/repos/${newRepo}`);
             const data = {
                 name: response.data.full_name,
@@ -54,15 +49,15 @@ export default class Main extends Component {
                 repositories: [...repositories, data],
                 newRepo: '',
                 loading: false,
-                erro: false,
             });
         } catch (error) {
-            this.setState({ loading: false, erro: true });
+            this.setState({ loading: true });
+            console.log("ERRO", error)
         }
     };
 
     render() {
-        const { newRepo, repositories, erro, loading } = this.state;
+        const { newRepo, repositories, loading } = this.state;
         return (
             <Container>
                 <h1>
@@ -70,19 +65,15 @@ export default class Main extends Component {
                     Repositórios
                 </h1>
 
-                <Form error={erro} onSubmit={this.handleSubmit}>
+                <Form onSubmit={this.handleSubmit}>
                     <input
                         type="text"
-                        placeholder="Adicionar Repositório"
+                        placeholder="Adicionar Repositorio"
                         value={newRepo}
                         onChange={this.handleInputChange}
                     />
                     <SubmitButton loading={loading}>
-                        {loading ? (
-                            <FaSpinner color="#fff" size={14} />
-                        ) : (
-                            <FaPlus color="#fff" size={14} />
-                        )}
+                        {loading ? <FaSpinner color="#fff" size={14} /> : <FaPlus color="#fff" size={14} />}
                     </SubmitButton>
                 </Form>
 

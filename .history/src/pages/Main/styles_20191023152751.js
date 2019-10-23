@@ -78,4 +78,6 @@ export const List = styled.ul`
             text-decoration: none;
         }
     }
+
 `;
+
